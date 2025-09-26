@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { getHistory, playRound, resetHistory } from "./api";
 import type { GameMove, GameResult } from "./types";
 
@@ -12,6 +13,22 @@ interface Stats {
   computer: number;
   draw: number;
 }
+
+const OUTCOME_CONFIG = [
+  { key: "player" as const, label: "Wins", color: "#16a34a" },
+  { key: "computer" as const, label: "Losses", color: "#ef4444" },
+  { key: "draw" as const, label: "Draws", color: "#f59e0b" }
+];
+
+type OutcomeKey = (typeof OUTCOME_CONFIG)[number]["key"];
+
+type ChartDatum = {
+  key: OutcomeKey;
+  label: string;
+  color: string;
+  value: number;
+  percentage: number;
+};
 
 export default function App() {
   const [history, setHistory] = useState<GameResult[]>([]);
@@ -78,6 +95,16 @@ export default function App() {
     );
   }, [history]);
 
+  const chartData = useMemo<ChartDatum[]>(
+    () =>
+      OUTCOME_CONFIG.map((item) => {
+        const value = stats[item.key];
+        const percentage = stats.total > 0 ? (value / stats.total) * 100 : 0;
+        return { ...item, value, percentage };
+      }),
+    [stats]
+  );
+
   return (
     <main className="card">
       <section>
@@ -114,22 +141,67 @@ export default function App() {
         {error && <p className="error">{error}</p>}
 
         {latest ? (
-          <div className="result-details">
-            <p>
-              You played <strong>{latest.playerMove}</strong> {emojiForMove(latest.playerMove)}
-            </p>
-            <p>
-              Computer played <strong>{latest.computerMove}</strong> {emojiForMove(latest.computerMove)}
-            </p>
-            <p>
-              Winner: <StatusPill winner={latest.winner} />
-            </p>
-            <p>
-              Played at: {new Date(latest.playedAt).toLocaleString()}
-            </p>
+          <div className="result-summary">
+            <div className="result-moves">
+              <ResultSide label="You" move={latest.playerMove} />
+              <span className="result-divider">vs</span>
+              <ResultSide label="Computer" move={latest.computerMove} />
+            </div>
+            <div className="result-meta">
+              <StatusPill winner={latest.winner} />
+              <span className="result-time">{formatTimestamp(latest.playedAt)}</span>
+            </div>
           </div>
         ) : (
           <p className="empty-state">Play your first round to see the results.</p>
+        )}
+      </section>
+
+      <section>
+        <h2 className="section-title">Results breakdown</h2>
+        {stats.total === 0 ? (
+          <p className="empty-state">Play a round to see the breakdown.</p>
+        ) : (
+          <div className="chart-panel">
+            <div className="chart-wrapper">
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="label"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    label={({ percent }) => {
+                      const pct = typeof percent === "number" ? percent * 100 : 0;
+                      return `${Math.round(pct)}%`;
+                    }}
+                  >
+                    {chartData.map((entry) => (
+                      <Cell key={entry.key} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, entry) => {
+                      const percentage = (entry?.payload as ChartDatum | undefined)?.percentage ?? 0;
+                      return [`${value} (${percentage.toFixed(1)}%)`, name as string];
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <ul className="chart-legend">
+              {chartData.map((entry) => (
+                <li key={entry.key}>
+                  <span className="legend-swatch" style={{ backgroundColor: entry.color }} />
+                  <span className="legend-label">{entry.label}</span>
+                  <span className="legend-count">{entry.value}</span>
+                  <span className="legend-percentage">{entry.percentage.toFixed(1)}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
 
@@ -183,6 +255,27 @@ function emojiForMove(move: string) {
 
 function formatMove(move: string) {
   return move.charAt(0).toUpperCase() + move.slice(1);
+}
+
+function formatTimestamp(dateIso: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(dateIso));
+}
+
+function ResultSide({ label, move }: { label: string; move: GameResult["playerMove"] }) {
+  return (
+    <div className="result-side">
+      <span className="result-side-label">{label}</span>
+      <span className="result-side-move">
+        <span aria-hidden className="result-side-emoji">
+          {emojiForMove(move)}
+        </span>
+        <strong>{formatMove(move)}</strong>
+      </span>
+    </div>
+  );
 }
 
 function StatusPill({ winner }: { winner: GameResult["winner"] }) {
