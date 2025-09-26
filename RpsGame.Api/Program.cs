@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using RpsGame.Api.Models;
+using RpsGame.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Default");
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<GameContext>(opt =>
     opt.UseNpgsql(connectionString));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IGameEngine, GameEngine>();
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:5173" };
@@ -47,20 +49,10 @@ app.UseSwaggerUI();
 app.UseCors("AllowFrontend");
 
 // Play endpoint
-app.MapPost("/api/game/play", async (string playerMove, GameContext db) =>
+app.MapPost("/api/game/play", async (string playerMove, GameContext db, IGameEngine gameEngine) =>
 {
-    var moves = new[] { "rock", "paper", "scissors" };
-    var computerMove = moves[new Random().Next(moves.Length)];
-    string winner = "draw";
-
-    if (playerMove == computerMove)
-        winner = "draw";
-    else if ((playerMove == "rock" && computerMove == "scissors") ||
-             (playerMove == "scissors" && computerMove == "paper") ||
-             (playerMove == "paper" && computerMove == "rock"))
-        winner = "player";
-    else
-        winner = "computer";
+    var computerMove = gameEngine.GenerateComputerMove();
+    var winner = gameEngine.ResolveWinner(playerMove, computerMove);
 
     var result = new GameResult
     {
