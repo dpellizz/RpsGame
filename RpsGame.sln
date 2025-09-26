@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RpsGame.Api", "RpsGame.Api\RpsGame.Api.csproj", "{AC358E56-A61E-1022-C50E-B694631431B4}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "RpsGame.React", "RpsGame.React\RpsGame.React.njsproj", "{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC358E56-A61E-1022-C50E-B694631431B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC358E56-A61E-1022-C50E-B694631431B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC358E56-A61E-1022-C50E-B694631431B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC358E56-A61E-1022-C50E-B694631431B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3134ED34-1F00-4366-B5F5-7C5073E298F4}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,36 @@
+services:
+  api:
+    build: .
+    image: rps-game-api:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=rps_game;Username=postgres;Password=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  web:
+    build:
+      context: ./RpsGame.React
+    image: rps-game-web:latest
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rps_game
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres-data:

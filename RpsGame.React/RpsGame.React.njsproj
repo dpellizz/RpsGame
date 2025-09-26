@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Name>RpsGame.React</Name>
+    <RootNamespace>RpsGame.React</RootNamespace>
+    <ProjectGuid>{8F4E4B1D-38F9-4D30-B45D-AF7448E0A3D5}</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>package.json</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <LaunchProvider>npm</LaunchProvider>
+    <StartProgram>npm</StartProgram>
+    <StartArguments>run dev</StartArguments>
+    <NodeExePath></NodeExePath>
+    <SuppressTSConfigJsonErrors>true</SuppressTSConfigJsonErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="package.json" />
+    <Content Include="tsconfig.json" />
+    <Content Include="tsconfig.node.json" />
+    <Content Include="vite.config.ts" />
+    <Content Include="index.html" />
+    <Content Include="src\**\*.*" />
+  </ItemGroup>
+</Project>

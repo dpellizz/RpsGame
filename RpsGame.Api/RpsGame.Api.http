@@ -1,0 +1,6 @@
+@RpsGame.Api_HostAddress = http://localhost:5198
+
+GET {{RpsGame.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
