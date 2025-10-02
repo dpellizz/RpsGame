@@ -5,20 +5,29 @@ using RpsGame.Api.Models;
 using RpsGame.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Default");
 
-if (string.IsNullOrWhiteSpace(connectionString))
+if (builder.Environment.IsEnvironment("IntegrationTesting"))
 {
-    connectionString = builder.Configuration["DATABASE_URL"];
+    builder.Services.AddDbContext<GameContext>(opt =>
+        opt.UseInMemoryDatabase("GameContextTests"));
 }
-
-if (string.IsNullOrWhiteSpace(connectionString))
+else
 {
-    throw new InvalidOperationException("PostgreSQL connection string is not configured. Set 'ConnectionStrings:Default' or 'DATABASE_URL'.");
-}
+    var connectionString = builder.Configuration.GetConnectionString("Default");
 
-builder.Services.AddDbContext<GameContext>(opt =>
-    opt.UseNpgsql(connectionString));
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        connectionString = builder.Configuration["DATABASE_URL"];
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException("PostgreSQL connection string is not configured. Set 'ConnectionStrings:Default' or 'DATABASE_URL'.");
+    }
+
+    builder.Services.AddDbContext<GameContext>(opt =>
+        opt.UseNpgsql(connectionString));
+}
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IGameEngine, GameEngine>();
@@ -80,3 +89,8 @@ app.MapDelete("/api/game/history", async (GameContext db) =>
 });
 
 app.Run();
+
+/// <summary>
+/// Marker type required for integration testing infrastructure.
+/// </summary>
+public partial class Program;

@@ -3,6 +3,9 @@ using RpsGame.Api.Services;
 
 namespace RpsGame.Api.Tests;
 
+/// <summary>
+/// Unit tests covering the deterministic behaviors of <see cref="GameEngine"/>.
+/// </summary>
 public class GameEngineTests
 {
     private readonly GameEngine _gameEngine = new();
