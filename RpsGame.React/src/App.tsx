@@ -106,20 +106,26 @@ export default function App() {
   );
 
   return (
-    <main className="card">
-      <section>
+    <main className="card" aria-labelledby="app-title">
+      <section aria-labelledby="app-title" aria-describedby="app-summary">
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h1 className="section-title">Rock · Paper · Scissors</h1>
+          <h1 id="app-title" className="section-title">
+            Rock · Paper · Scissors
+          </h1>
           <div>
-            <p style={{ margin: 0, color: "#475569" }}>API: {import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5198"}</p>
+            <p id="app-summary" style={{ margin: 0, color: "#475569" }}>
+              API: {import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5198"}
+            </p>
             <p style={{ margin: 0, color: "#475569" }}>Rounds played: {stats.total}</p>
           </div>
         </header>
       </section>
 
-      <section>
-        <h2 className="section-title">Choose your move</h2>
-        <div className="move-grid">
+      <section aria-labelledby="move-title">
+        <h2 id="move-title" className="section-title">
+          Choose your move
+        </h2>
+        <div className="move-grid" role="group" aria-label="Player moves">
           {MOVES.map((move) => (
             <button key={move} className="button" type="button" onClick={() => onPlay(move)} disabled={status === "loading"}>
               <span style={{ fontSize: "2.5rem" }}>{emojiForMove(move)}</span>
@@ -129,19 +135,27 @@ export default function App() {
         </div>
       </section>
 
-      <section className="result-card">
+      <section className="result-card" aria-labelledby="latest-result-title">
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3>Latest result</h3>
+          <h3 id="latest-result-title">Latest result</h3>
           <button className="button secondary" type="button" onClick={onReset} disabled={status === "loading"}>
             Reset history
           </button>
         </header>
 
-        {status === "loading" && <p className="loading">Working...</p>}
-        {error && <p className="error">{error}</p>}
+        {status === "loading" && (
+          <p className="loading" role="status" aria-live="polite">
+            Working...
+          </p>
+        )}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
 
         {latest ? (
-          <div className="result-summary">
+          <div className="result-summary" role="status" aria-live="polite" aria-atomic="true">
             <div className="result-moves">
               <ResultSide label="You" move={latest.playerMove} />
               <span className="result-divider">vs</span>
@@ -157,13 +171,15 @@ export default function App() {
         )}
       </section>
 
-      <section>
-        <h2 className="section-title">Results breakdown</h2>
+      <section aria-labelledby="results-breakdown-title">
+        <h2 id="results-breakdown-title" className="section-title">
+          Results breakdown
+        </h2>
         {stats.total === 0 ? (
           <p className="empty-state">Play a round to see the breakdown.</p>
         ) : (
           <div className="chart-panel">
-            <div className="chart-wrapper">
+            <div className="chart-wrapper" role="img" aria-label="Outcome breakdown pie chart">
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
@@ -191,7 +207,7 @@ export default function App() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <ul className="chart-legend">
+            <ul className="chart-legend" aria-label="Outcome breakdown legend">
               {chartData.map((entry) => (
                 <li key={entry.key}>
                   <span className="legend-swatch" style={{ backgroundColor: entry.color }} />
@@ -205,12 +221,14 @@ export default function App() {
         )}
       </section>
 
-      <section>
-        <h2 className="section-title">Match history</h2>
+      <section aria-labelledby="match-history-title">
+        <h2 id="match-history-title" className="section-title">
+          Match history
+        </h2>
         {history.length === 0 ? (
           <p className="empty-state">No rounds recorded yet.</p>
         ) : (
-          <table className="history-table">
+          <table className="history-table" aria-label="Match history">
             <thead>
               <tr>
                 <th>#</th>
@@ -269,7 +287,7 @@ function ResultSide({ label, move }: { label: string; move: GameResult["playerMo
     <div className="result-side">
       <span className="result-side-label">{label}</span>
       <span className="result-side-move">
-        <span aria-hidden className="result-side-emoji">
+  <span aria-hidden="true" className="result-side-emoji">
           {emojiForMove(move)}
         </span>
         <strong>{formatMove(move)}</strong>
