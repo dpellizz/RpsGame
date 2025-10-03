@@ -1,0 +1,17 @@
+{
+  "name": "rpsgame-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end Playwright test suite for the RpsGame application.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "codegen": "playwright codegen",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^20.16.9"
+  }
+}
