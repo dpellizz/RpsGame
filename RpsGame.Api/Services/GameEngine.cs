@@ -19,7 +19,7 @@ public class GameEngine : IGameEngine
     /// <returns>One of the supported move names.</returns>
     public string GenerateComputerMove()
     {
-        return Moves[Random.Shared.Next(Moves.Length - 1)];
+        return Moves[Random.Shared.Next(Moves.Length)];
     }
 
     /// <summary>
