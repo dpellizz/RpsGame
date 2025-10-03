@@ -11,17 +11,36 @@ test.describe('Rock · Paper · Scissors', () => {
       playedAt: new Date('2024-01-01T12:00:00Z').toISOString()
     };
 
+    const buildHistoryResponse = (items: Array<typeof mockResult>) => {
+      const playerWins = items.filter((item) => item.winner === 'player').length;
+      const computerWins = items.filter((item) => item.winner === 'computer').length;
+      const draws = items.filter((item) => item.winner === 'draw').length;
+
+      return {
+        items,
+        page: 1,
+        pageSize: 10,
+        totalCount: items.length,
+        totalPages: 1,
+        hasPrevious: false,
+        hasNext: false,
+        summary: {
+          total: items.length,
+          player: playerWins,
+          computer: computerWins,
+          draw: draws
+        }
+      };
+    };
+
     let historyCallCount = 0;
 
-    await page.route('**/api/game/history', async (route) => {
+    await page.route('**/api/game/history**', async (route) => {
       const method = route.request().method();
       if (method === 'GET') {
         historyCallCount += 1;
-        if (historyCallCount === 1) {
-          await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-        } else {
-          await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([mockResult]) });
-        }
+        const response = historyCallCount === 1 ? buildHistoryResponse([]) : buildHistoryResponse([mockResult]);
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(response) });
         return;
       }
 
@@ -51,8 +70,9 @@ test.describe('Rock · Paper · Scissors', () => {
     await test.step('Play a round', async () => {
       await gamePage.playRound('rock');
       await gamePage.expectLatestWinner('player');
-      await gamePage.expectHistoryRowCount(1);
-      await gamePage.expectHistoryEntry(0, 'rock', 'scissors', 'player');
+      const historyPage = await gamePage.openHistory();
+      await historyPage.expectRowCount(1);
+      await historyPage.expectHistoryEntry(0, 'rock', 'scissors', 'player');
     });
   });
 
@@ -65,12 +85,34 @@ test.describe('Rock · Paper · Scissors', () => {
       playedAt: new Date('2024-01-01T12:05:00Z').toISOString()
     };
 
-  let historyState: Array<typeof mockResult> = [mockResult];
+	const buildHistoryResponse = (items: Array<typeof mockResult>) => {
+      const playerWins = items.filter((item) => item.winner === 'player').length;
+      const computerWins = items.filter((item) => item.winner === 'computer').length;
+      const draws = items.filter((item) => item.winner === 'draw').length;
 
-    await page.route('**/api/game/history', async (route) => {
+      return {
+        items,
+        page: 1,
+        pageSize: 10,
+        totalCount: items.length,
+        totalPages: 1,
+        hasPrevious: false,
+        hasNext: false,
+        summary: {
+          total: items.length,
+          player: playerWins,
+          computer: computerWins,
+          draw: draws
+        }
+      };
+    };
+
+	let historyState: Array<typeof mockResult> = [mockResult];
+
+    await page.route('**/api/game/history**', async (route) => {
       const method = route.request().method();
       if (method === 'GET') {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(historyState) });
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(buildHistoryResponse(historyState)) });
         return;
       }
 
@@ -95,12 +137,15 @@ test.describe('Rock · Paper · Scissors', () => {
 
     await test.step('Open the game with history', async () => {
       await gamePage.goto();
-      await gamePage.expectHistoryRowCount(1);
+      const historyPage = await gamePage.openHistory();
+      await historyPage.expectRowCount(1);
+      await historyPage.goBackToGame();
     });
 
     await test.step('Reset history', async () => {
       await gamePage.resetHistory();
-      await gamePage.expectHistoryRowCount(0);
+      const historyPage = await gamePage.openHistory();
+      await historyPage.expectRowCount(0);
     });
   });
 });

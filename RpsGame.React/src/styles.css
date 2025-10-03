@@ -189,6 +189,49 @@ body {
   background: rgba(148, 163, 184, 0.12);
 }
 
+.history-summary-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.history-summary-text {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+  max-width: 520px;
+}
+
+.table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.table-summary {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-status {
+  font-weight: 600;
+  color: #1f2933;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;

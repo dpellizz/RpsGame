@@ -1,4 +1,4 @@
-import { GameMove, GameResult } from "./types";
+import { GameHistoryPage, GameMove, GameResult } from "./types";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5198";
 
@@ -24,8 +24,13 @@ export async function playRound(move: GameMove): Promise<GameResult> {
   return response.json();
 }
 
-export async function getHistory(): Promise<GameResult[]> {
-  const response = await fetch(buildUrl("/api/game/history"));
+export async function getHistory(page = 1, pageSize = 10): Promise<GameHistoryPage> {
+  const response = await fetch(
+    buildUrl("/api/game/history", {
+      page: page.toString(),
+      pageSize: pageSize.toString()
+    })
+  );
 
   if (!response.ok) {
     throw new Error(`History request failed: ${response.statusText}`);

@@ -7,3 +7,21 @@ export interface GameResult {
 }
 
 export type GameMove = "rock" | "paper" | "scissors";
+
+export interface HistorySummary {
+  total: number;
+  player: number;
+  computer: number;
+  draw: number;
+}
+
+export interface GameHistoryPage {
+  items: GameResult[];
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  summary: HistorySummary;
+}

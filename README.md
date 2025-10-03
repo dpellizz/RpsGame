@@ -8,7 +8,7 @@ Rock–paper–scissors as a full-stack sample: a minimal ASP.NET Core API backe
 | --- | --- |
 | `RpsGame.Api/` | Minimal API (.NET 9) exposing play/history endpoints and persisting results. |
 | `RpsGame.React/` | Vite + React client that plays the game from the browser. |
-| `scripts/` | `curl`-based helpers to hit the API from the terminal. |
+| `scripts/` | Shell helpers for quick checks and k6 scenarios for load testing. |
 | `docker-compose.yml` | Orchestrates API, frontend, and PostgreSQL containers. |
 
 ## Requirements
@@ -63,14 +63,46 @@ Point the scripts at another host if necessary:
 
 ```bash
 API_BASE=http://localhost:8080 ./scripts/play.sh scissors
-API_BASE=http://localhost:8080 ./scripts/history.sh
+API_BASE=http://localhost:8080 PAGE=2 PAGE_SIZE=50 ./scripts/history.sh
 API_BASE=http://localhost:8080 ./scripts/reset-history.sh
 ```
+
+### Load testing with k6
+
+[k6](https://k6.io/docs/) offers quick, scriptable load tests that you can run from your workstation or a CI runner. The repository ships with `scripts/k6/play-load-test.js`, a scenario that exercises the `POST /api/game/play` endpoint at scale.
+
+Install k6 (macOS example shown):
+
+```bash
+brew install k6
+```
+
+Then point the script at your API:
+
+```bash
+API_BASE=http://localhost:8080 \
+K6_VUS=40 \
+K6_DURATION=2m \
+k6 run scripts/k6/play-load-test.js
+```
+
+Environment variables you can tweak:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `API_BASE` / `API_BASE_URL` | `http://localhost:5198` | Base URL for the API (pick the host you want to stress). |
+| `K6_VUS` | `25` | Virtual users that run concurrently. |
+| `K6_DURATION` | `2m` | Test duration (any k6 duration string). |
+| `K6_MOVES` | `rock,paper,scissors` | Comma-separated list of moves to randomize. |
+| `K6_ITERATION_PAUSE` | `0.1` | Seconds to wait between iterations per VU. |
+| `K6_RESET_HISTORY` | `false` | Set to `true` to clear history before the test starts. |
+
+> ⚠️ Load tests can generate a large number of database writes. Run them against isolated environments, monitor resource usage, and avoid hitting production unless you have explicit approval.
 
 ### Endpoints
 
 - `POST /api/game/play` – Records a game result.
-- `GET /api/game/history` – Lists results (newest first).
+- `GET /api/game/history` – Lists results (newest first). Supports `page` (default `1`) and `pageSize` (default `25`, max `100`) query parameters and returns `{ items, summary, totalCount, totalPages, hasPrevious, hasNext }`.
 - `DELETE /api/game/history` – Clears all results.
 
 Swagger UI is available at `/swagger` when the app is running.
